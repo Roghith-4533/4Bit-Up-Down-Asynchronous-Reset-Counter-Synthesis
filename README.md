@@ -11,16 +11,110 @@ Functional Simulation: Incisive Simulator (ncvlog, ncelab, ncsim)
 Synthesis: Genus
 
 ### Step 1: Getting Started
+![Screenshot 2025-05-09 113223](https://github.com/user-attachments/assets/3b84dc4a-8914-445b-8c87-009c9dee408e)
+
 
 Synthesis requires three files as follows,
 
 ◦ Liberty Files (.lib)
 
 ◦ Verilog/VHDL Files (.v or .vhdl or .vhd)
+##Testbench
+timescale 1ns/1ps
+module up_down-counter_tb();
 
-◦ SDC (Synopsis Design Constraint) File (.sdc)
+```reg clk;
+reg reset;
+reg up_down;
+reg enable;
+wire [3:0] count;
+
+
+up_down_counter uut(
+    .clk(clk),
+    .reset(reset),
+    .up_down(up_down),
+    .enable(enable),
+    .count(count)
+);
+
+
+initial begin
+    clk = 0;
+    forever #5 clk = ~clk;  
+end
+
+
+initial begin
+
+    reset = 1;
+    up_down = 1;
+    enable = 0;
+    
+
+    #20 reset = 0;
+    
+
+    #10 enable = 1;
+    #200;  
+    
+
+    up_down = 0;
+    #200;  
+    
+
+    enable = 0;
+    #50;
+    
+
+    reset = 1;
+    #20 reset = 0;
+    
+
+    #50;
+    
+
+    $finish;
+end
+
+
+initial begin
+    $monitor("Time: %t, Reset: %b, Up/Down: %b, Enable: %b, Count: %b", 
+             $time, reset, up_down, enable, count);
+end
+
+```
+endmodule
+
+##Design
+```
+always @(posedge clk or posedge reset) begin
+    if (reset) 
+    begin
+        count <= 4'b0000;
+    end
+
+    else if (enable)
+    begin
+        if (up_down)
+        begin
+            count <= count + 1'b1;
+        end
+        else begin
+            count <= count - 1'b1;
+        end
+    end
+end
+```
+
+◦ ##SDC (Synopsis Design Constraint) File (.sdc)
+![Screenshot 2025-05-09 113557](https://github.com/user-attachments/assets/99fed110-cd84-49de-babb-eabce611c3b6)
+
+
+
 
  ### Step 2 : Creating an SDC File
+ 
 
 •	In your terminal type “gedit input_constraints.sdc” to create an SDC File if you do not have one.
 
@@ -65,11 +159,19 @@ used.
 
 #### Synthesis RTL Schematic :
 
+![Screenshot 2025-05-09 114335](https://github.com/user-attachments/assets/5332e5f0-20d5-4060-aa4b-2bd53be76d8b)
+
 #### Area report:
+![Screenshot 2025-05-09 213256](https://github.com/user-attachments/assets/fbef7fcc-7dae-4f8e-b9b4-b3765554fe53)
+
 
 #### Power Report:
 
+![Screenshot 2025-05-09 213310](https://github.com/user-attachments/assets/d887bd33-2c9e-41b0-bfb5-fda1633ac2d1)
+
 #### Timing Report: 
+![Screenshot 2025-05-09 114626](https://github.com/user-attachments/assets/12032845-58af-42a1-af47-aa5400562e2b)
+
 
 #### Result: 
 
